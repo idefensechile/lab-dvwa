@@ -1,0 +1,32 @@
+# TS Cyber Academy · Lab DVWA (Damn Vulnerable Web Application)
+# App deliberadamente vulnerable: se publica SOLO en 127.0.0.1.
+services:
+  dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    container_name: ts-lab-dvwa
+    environment:
+      DB_SERVER: db
+    volumes:
+      # Corrige la cookie de sesión detrás del proxy de Codespaces (ver php/forwarded-host.php)
+      - ./php/forwarded-host.php:/opt/ts-lab/forwarded-host.php:ro
+      - ./php/zz-forwarded-host.ini:/usr/local/etc/php/conf.d/zz-forwarded-host.ini:ro
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:4280:80"
+    restart: unless-stopped
+
+  db:
+    image: docker.io/library/mariadb:10
+    container_name: ts-lab-dvwa-db
+    environment:
+      MYSQL_ROOT_PASSWORD: dvwa
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: p@ssw0rd
+    volumes:
+      - dvwa:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  dvwa:
